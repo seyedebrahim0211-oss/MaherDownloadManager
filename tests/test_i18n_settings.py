@@ -13,8 +13,8 @@ class I18NSettingsTests(unittest.TestCase):
     def test_all_translations(self):
         for key, pair in TRANSLATIONS.items():
             self.assertEqual(len(pair),2,key)
-            self.assertTrue(tr(key,'fa',version='2.1.0',count=2,name='x',done='2 MB',total='5 MB'),key)
-            self.assertTrue(tr(key,'en',version='2.1.0',count=2,name='x',done='2 MB',total='5 MB'),key)
+            self.assertTrue(tr(key,'fa',version='2.1.0',count=2,name='x',done='2 MB',total='5 MB',active=2,speed='4 MB'),key)
+            self.assertTrue(tr(key,'en',version='2.1.0',count=2,name='x',done='2 MB',total='5 MB',active=2,speed='4 MB'),key)
         for key in FILTER_KEYS+list(STATUS_KEYS.values()):
             self.assertIn(key,TRANSLATIONS)
         self.assertEqual(set(THEME_LABELS),set(THEMES))

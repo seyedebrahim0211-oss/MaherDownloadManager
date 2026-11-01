@@ -1,24 +1,26 @@
-Maher Download Manager 2.1.0 — Offline QA Summary
-2026-11-01
+Maher Download Manager 2.2.0 — Offline / GUI QA Summary
 
-Automated checks
-- 13 unittest cases: PASS
-- Python compileall: PASS
-- Tkinter startup and UI rebuild: PASS (virtual Xvfb)
-- English and Persian language selection: PASS (virtual Xvfb; local Persian shaping modules not installed)
-- Settings dialog: scrolled layout, persistent save button: PASS
-- All theme contrast: standard text vs surface > 4.5: PASS
-- HTTP range, nonrange, resume and persisted settings: PASS
-- Browser pairing and request origin authentication: PASS
-- yt-dlp mock detection and DRM-only refusal path: PASS
-- Version checks, SHA-256 downloads, 24-hour update schedule: PASS
-- GitHub Actions workflow YAML: triggers configured for pushes, tags and manual runs
+Unit tests: 18 passed (2026-11-01)
+- HTTP range and non-range download integrity
+- Pause/resume and persistent metadata
+- Duplicate and unsafe filename checks
+- Browser bridge origin and pairing token security
+- Media detection and controlled DRM rejection
+- Release version, SHA-256 verification, and update scheduling
+- Language settings persistence and translation completeness
+- Persian fallback visual shaping and English preservation
+- Custom toolbar icon assets and installer version metadata
 
-Remaining platform integration checks
-- Test actual compiled installer on Windows 10 and Windows 11
-- Test fonts with bundled arabic-reshaper / python-bidi in compiled EXE
-- Test real GitHub Release update download, exit, installer replacement, relaunch
-- Test YouTube and HLS download against real supported URLs
-- Test Chrome/Edge/Firefox extension and Windows SmartScreen behavior
+GUI integration, on virtual Linux desktop:
+- Opening app with 7-column dense table and folder categories
+- Filtering, search, and header sorting
+- Language change en/fa without restart
+- Theme selection and sidebar visibility
+- Settings and scheduled-download dialogs
+- Real screenshots captured in 1330x790 resolution
 
-No DRM circumvention. No assertion that all browser media can be captured.
+Limitations:
+- The Windows EXE has not been built or installed in this environment.
+- Browser integrations and YouTube/HLS have not been end-to-end tested on a Windows machine.
+- Screenshots contain simulated download records for UI illustration only.
+- DRM circumvention is not provided.

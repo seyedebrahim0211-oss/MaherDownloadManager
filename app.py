@@ -7,6 +7,9 @@ import os
 import queue
 import subprocess
 import sys
+import webbrowser
+from urllib.parse import urlsplit
+from datetime import timedelta
 import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk, font as tkfont
@@ -19,14 +22,7 @@ from themes import THEMES, THEME_LABELS
 from updater import APP_VERSION, find_update, download_verified_update, launch_installer
 from update_policy import is_update_check_due
 
-try:
-    import arabic_reshaper
-    from bidi.algorithm import get_display
-    def shape(text):
-        text = str(text)
-        return get_display(arabic_reshaper.reshape(text), base_dir='R') if any('\u0600' <= x <= '\u06ff' for x in text) else text
-except ImportError:
-    def shape(text): return str(text)
+from rtl_support import shape
 
 try:
     from tkinterdnd2 import TkinterDnD
@@ -85,8 +81,8 @@ class Dialog(tk.Toplevel):
 
 
 class AddDialog(Dialog):
-    def __init__(self,app,initial=''):
-        super().__init__(app,'new',610,560)
+    def __init__(self,app,initial='',scheduled=False):
+        super().__init__(app,'new',610,620 if scheduled else 560)
         p=tk.Frame(self,bg=PALETTE['surface'],padx=26,pady=20);p.pack(fill='both',expand=True)
         widget_label(p,app.t('download_new'),size=20,bold=True).pack(anchor=app.anchor)
         self.caption(p,'url_hint',pady=(14,5))
@@ -102,6 +98,12 @@ class AddDialog(Dialog):
         self.directory=widget_entry(row,justify='left');self.directory.pack(side=app.trailing,fill='x',expand=True,ipady=7,padx=8)
         self.caption(p,'speed_cap')
         self.speed=widget_entry(p,justify='center');self.speed.insert(0,'0');self.speed.pack(fill='x',ipady=6)
+        self.scheduled=scheduled
+        if scheduled:
+            self.caption(p,'schedule_at')
+            self.schedule_value=widget_entry(p,justify='left')
+            self.schedule_value.insert(0,(datetime.now()+timedelta(hours=1)).strftime('%Y-%m-%d %H:%M'))
+            self.schedule_value.pack(fill='x',ipady=6)
         row=tk.Frame(p,bg=PALETTE['surface']);row.pack(fill='x',pady=(18,0))
         widget_button(row,app.t('start'),self.submit,primary=True).pack(side=app.leading,padx=(0,8))
         widget_button(row,app.t('cancel'),self.destroy).pack(side=app.leading)
@@ -116,7 +118,12 @@ class AddDialog(Dialog):
             limit=int(self.speed.get().strip() or '0')
             if not 0<=limit<=1000000:raise ValueError(self.app.t('speed_invalid'))
             kind=('auto','direct','media')[self.kind.current()]
-            job=self.app.manager.add(self.url.get(),filename=self.filename.get(),directory=self.directory.get(),limit_kbps=limit,kind=kind)
+            scheduled_at=''
+            if self.scheduled:
+                scheduled_time=datetime.fromisoformat(self.schedule_value.get().strip())
+                if scheduled_time<=datetime.now():raise ValueError(self.app.t('schedule_future'))
+                scheduled_at=scheduled_time.isoformat(timespec='seconds')
+            job=self.app.manager.add(self.url.get(),filename=self.filename.get(),directory=self.directory.get(),limit_kbps=limit,kind=kind,scheduled_at=scheduled_at)
             self.app.selected=job.id
             self.destroy();self.app.refresh()
         except Exception as exc:
@@ -211,7 +218,9 @@ class App(Root):
         self._pending_update=None
         self._checked_this_run=False
         self.bridge=start_bridge(self.manager)
-        self.geometry('1190x760');self.minsize(920,635)
+        self.geometry('1320x800');self.minsize(1020,610)
+        self.sort_by='added_at';self.sort_reverse=True;self.show_sidebar=True
+        self._icon_cache={}
         self.rebuild()
         self.after(180,self._poll)
         self.after(2500,self._automatic_update_check)
@@ -219,6 +228,9 @@ class App(Root):
         self.protocol('WM_DELETE_WINDOW',self.close)
         self.bind('<Control-n>',lambda _:AddDialog(self))
         self.bind('<Control-v>',self.clipboard_add)
+        self.bind('<Control-f>',lambda _:self.focus_search())
+        self.bind('<Delete>',lambda _:self.remove_selected())
+        self.bind('<F5>',lambda _:self.refresh())
         try:
             self.drop_target_register('DND_TEXT','DND_FILES')
             self.dnd_bind('<<Drop>>',lambda event:self._on_drop(event.data))
@@ -242,11 +254,15 @@ class App(Root):
     def _styles(self):
         style=ttk.Style(self);style.theme_use('clam')
         style.configure('Maher.Treeview',background=PALETTE['surface'],foreground=PALETTE['text'],
-                        fieldbackground=PALETTE['surface'],borderwidth=0,rowheight=42,font=(FONT,10))
+                        fieldbackground=PALETTE['surface'],borderwidth=0,rowheight=31,font=(FONT,10))
         style.configure('Maher.Treeview.Heading',background=PALETTE['surface2'],foreground=PALETTE['text'],
-                        relief='flat',borderwidth=0,font=(FONT,10,'bold'),padding=(9,12))
+                        relief='flat',borderwidth=0,font=(FONT,10,'bold'),padding=(9,10))
         style.map('Maher.Treeview',background=[('selected',PALETTE['surface2'])],foreground=[('selected',PALETTE['accent'])])
         style.map('Maher.Treeview.Heading',background=[('active',PALETTE['line'])])
+        style.configure('Library.Treeview',background=PALETTE['surface'],foreground=PALETTE['text'],
+                        fieldbackground=PALETTE['surface'],borderwidth=0,rowheight=34,font=(FONT,10))
+        style.map('Library.Treeview',background=[('selected',PALETTE['surface2'])],foreground=[('selected',PALETTE['accent'])])
+        style.configure('Library.Treeview.Heading',background=PALETTE['surface'],foreground=PALETTE['muted'],borderwidth=0)
         style.configure('Maher.TCombobox',fieldbackground=PALETTE['surface2'],background=PALETTE['surface2'],foreground=PALETTE['text'])
 
     def rebuild(self):
@@ -276,108 +292,218 @@ class App(Root):
                 canvas.create_oval(x-2,y-2,x+2,y+2,fill=PALETTE['accent'],outline='')
         canvas.bind('<Configure>',paint)
 
+    def _image(self,name):
+        if name in self._icon_cache:return self._icon_cache[name]
+        path=Path(getattr(sys,'_MEIPASS',Path(__file__).parent))/'assets'/'ui'/(name+'.png')
+        if not path.exists():return None
+        icon=tk.PhotoImage(master=self,file=str(path))
+        self._icon_cache[name]=icon
+        return icon
+
+    def _menu(self):
+        menubar=tk.Menu(self,tearoff=0)
+        menus=[('menu_file',[('new',lambda:AddDialog(self)),('schedule',self.schedule_download),
+                             ('menu_exit',self.close)]),
+               ('menu_downloads',[('resume',self.resume_selected),('pause',self.pause_selected),
+                                  ('resume_all',self.manager.resume_all),('pause_all',self.manager.pause_all),
+                                  ('remove',self.remove_selected),('open_folder',self.open_directory)]),
+               ('menu_view',[('menu_toggle_sidebar',self.toggle_sidebar),('theme_button',self.cycle_theme),
+                             ('menu_language',self.toggle_language)]),
+               ('menu_tools',[('settings_button',lambda:SettingsDialog(self)),('update_check',self.check_update),
+                              ('copy_pair',self.copy_pairing)]),
+               ('menu_help',[('menu_about',self.about)])]
+        for label,entries in menus:
+            menu=tk.Menu(menubar,tearoff=0,bg=PALETTE['surface'],fg=PALETTE['text'],
+                         activebackground=PALETTE['accent'],activeforeground=PALETTE.get('buttonText','#071D20'))
+            for text_key,func in entries:menu.add_command(label=shape(self.t(text_key)),command=func)
+            menubar.add_cascade(label=shape(self.t(label)),menu=menu)
+        self.config(menu=menubar)
+
+    def _toolbar_button(self,frame,icon,key,command,*,accent=False):
+        background=PALETTE['surface2'] if accent else PALETTE['surface']
+        tile=tk.Frame(frame,bg=background,width=88,height=80,cursor='hand2')
+        tile.pack(side=self.leading,padx=2,pady=6)
+        tile.pack_propagate(False)
+        image=self._image(icon)
+        pic=tk.Label(tile,image=image,bg=background,cursor='hand2')
+        pic.pack(pady=(10,4))
+        caption=tk.Label(tile,text=shape(self.t(key)),fg=PALETTE['text'] if accent else PALETTE['muted'],
+                 bg=background,font=(FONT,9,'bold'),cursor='hand2')
+        caption.pack()
+        def click(_):command()
+        def color(active):
+            bg=PALETTE['surface2'] if active else background
+            for w in (tile,pic,caption):w.configure(bg=bg)
+            caption.configure(fg=PALETTE['accent'] if active else PALETTE['text'] if accent else PALETTE['muted'])
+        for w in (tile,pic,caption):
+            w.bind('<Button-1>',click)
+            w.bind('<Enter>',lambda _:color(True))
+            w.bind('<Leave>',lambda _:color(False))
+        return tile
+
     def _draw_layout(self):
-        self.sidebar=tk.Frame(self,bg=PALETTE['surface'],width=208)
-        self.sidebar.pack(side=self.leading,fill='y');self.sidebar.pack_propagate(False)
-        brand=tk.Frame(self.sidebar,bg=PALETTE['surface'],padx=13,pady=17);brand.pack(fill='x')
-        icon=tk.Canvas(brand,width=39,height=39,bg=PALETTE['surface'],highlightthickness=0)
-        icon.pack(side=self.leading,padx=(4,8))
-        icon.create_polygon(20,1,25,14,38,19,25,24,20,37,15,24,2,19,15,14,fill=PALETTE['accent'],outline='')
-        icon.create_oval(14,13,26,25,fill=PALETTE['surface'],outline='')
-        icon.create_text(20,19,text='↓',fill=PALETTE['accent'],font=('Arial',15,'bold'))
-        brandtext=tk.Frame(brand,bg=PALETTE['surface']);brandtext.pack(side=self.leading)
-        widget_label(brandtext, self.t('brand'), bold=True, size=11).pack(anchor=self.anchor)
-        widget_label(brandtext, 'MAHER · ' + APP_VERSION, size=8, color='muted').pack(anchor=self.anchor)
-        self._motif(self.sidebar)
-        widget_label(self.sidebar, self.t('library'), size=9, color='muted', bold=True).pack(anchor=self.anchor,padx=17,pady=(2,9))
-        self.filter_buttons={}
-        icons=['▦','↓','⋯','✓','Ⅱ','!','▣','♫','▧','▤','▱','◇']
-        for key,icon in zip(FILTER_KEYS,icons):
-            text=self.t(key)
-            name=f'{text}   {icon}' if self.rtl else f'{icon}   {text}'
-            b=tk.Button(self.sidebar,text=shape(name),anchor=self.anchor,padx=14,pady=8,bd=0,relief='flat',
-                        bg=PALETTE['surface2'] if key==self.filter else PALETTE['surface'],
-                        fg=PALETTE['accent'] if key==self.filter else PALETTE['muted'],
-                        activebackground=PALETTE['surface2'],activeforeground=PALETTE['text'],font=(FONT,10),
-                        cursor='hand2',command=lambda k=key:self.choose_filter(k))
-            b.pack(fill='x',padx=9,pady=1);self.filter_buttons[key]=b
-        widget_label(self.sidebar, self.t('version', version=APP_VERSION), size=9, color='muted').pack(side='bottom',anchor=self.anchor,padx=16,pady=15)
-
-        self.main=tk.Frame(self,bg=PALETTE['bg']);self.main.pack(side=self.trailing,fill='both',expand=True)
-        header=tk.Frame(self.main,bg=PALETTE['bg'],padx=23,pady=18);header.pack(fill='x')
-        widget_button(header,self.t('add_link'),lambda:AddDialog(self),primary=True).pack(side=self.leading)
-        widget_button(header,self.t('settings_button'),lambda:SettingsDialog(self)).pack(side=self.leading,padx=7)
-        widget_button(header,self.t('theme_button'),self.cycle_theme).pack(side=self.leading)
-        title=tk.Frame(header,bg=PALETTE['bg']);title.pack(side=self.trailing)
-        widget_label(title, self.t('dashboard'), bold=True, size=22).pack(anchor=self.anchor)
-        widget_label(title, self.t('tagline'), size=10, color='muted').pack(anchor=self.anchor)
-        stats=tk.Frame(self.main,bg=PALETTE['bg'],padx=23);stats.pack(fill='x')
-        self.cards={}
-        for key,label,unit in [('total','files_total','files_unit'),('running','running','downloads_unit'),
-                               ('done','done','files_unit'),('speed','total_speed','per_second')]:
-            card=tk.Frame(stats,bg=PALETTE['surface'],highlightbackground=PALETTE['line'],highlightthickness=1)
-            card.pack(side=self.leading,expand=True,fill='both',padx=4,ipady=9)
-            widget_label(card, self.t(label), size=10, color='muted').pack(anchor=self.anchor,padx=14,pady=(6,2))
-            value=widget_label(card, '0', bold=True, size=23);value.pack(anchor=self.anchor,padx=14)
-            widget_label(card, self.t(unit), size=9, color='muted').pack(anchor=self.anchor,padx=14,pady=(0,3))
-            self.cards[key]=value
-        searchbar=tk.Frame(self.main,bg=PALETTE['bg'],padx=23,pady=18);searchbar.pack(fill='x')
+        self._menu()
+        # Narrow Persian ornament line; the toolbar remains dominant like classic IDM.
+        band=tk.Frame(self,bg=PALETTE['surface'],height=54)
+        band.pack(side='top',fill='x')
+        band.pack_propagate(False)
+        identity=tk.Frame(band,bg=PALETTE['surface'])
+        identity.pack(side=self.leading,padx=20)
+        icon=self._image('brand')
+        tk.Label(identity,image=icon,bg=PALETTE['surface']).pack(side=self.leading,padx=(0,8))
+        name=tk.Frame(identity,bg=PALETTE['surface']);name.pack(side=self.leading,pady=7)
+        widget_label(name,self.t('brand'),size=13,bold=True).pack(anchor=self.anchor)
+        widget_label(name,self.t('tagline'),size=9,color='muted').pack(anchor=self.anchor)
+        flag=tk.Frame(band,bg=PALETTE['surface']);flag.pack(side=self.trailing,padx=18)
+        widget_button(flag,self.t('toolbar_language'),self.toggle_language).pack(side=self.trailing,padx=3)
+        widget_button(flag,self.t('theme_button'),self.cycle_theme).pack(side=self.trailing,padx=3)
+        widget_label(flag,'v'+APP_VERSION,size=9,color='muted').pack(side=self.trailing,padx=9)
+        line=tk.Canvas(self,height=10,bg=PALETTE['surface2'],highlightthickness=0)
+        line.pack(side='top',fill='x')
+        def paint(event):
+            line.delete('all')
+            w=event.width
+            line.create_rectangle(0,0,w,10,fill=PALETTE['surface2'],outline='')
+            for x in range(0,w,24):
+                line.create_polygon(x+6,1,x+11,5,x+6,9,x+1,5,fill='',outline=PALETTE['accent'])
+                line.create_line(x+11,5,x+19,5,fill=PALETTE['line'])
+        line.bind('<Configure>',paint)
+        toolbar=tk.Frame(self,bg=PALETTE['surface'],padx=10,pady=1)
+        toolbar.pack(side='top',fill='x')
+        operations=[('add','toolbar_add',lambda:AddDialog(self)),('resume','toolbar_resume',self.resume_selected),
+                    ('pause','toolbar_pause',self.pause_selected),('allpause','pause_all',self.manager.pause_all),
+                    ('remove','toolbar_remove',self.remove_selected),('schedule','toolbar_schedule',self.schedule_download),
+                    ('folder','toolbar_folder',self.open_directory),('settings','toolbar_settings',lambda:SettingsDialog(self)),
+                    ('update','toolbar_update',self.check_update)]
+        for i,(icon,label,command) in enumerate(operations):
+            if i in (1,5,7):
+                tk.Frame(toolbar,bg=PALETTE['line'],width=1,height=55).pack(side=self.leading,padx=7)
+            self._toolbar_button(toolbar,icon,label,command,accent=(i==0))
+        # Keep an actionable update control in sync with the verified updater.
+        self.update_button=widget_button(toolbar,self.t('update_check'),self.check_update)
+        # Shown only if an update is available; the toolbar icon handles manual checks.
+        # Layout stays compact and avoids duplicate update actions.
+        body=tk.Frame(self,bg=PALETTE['bg'])
+        body.pack(fill='both',expand=True)
+        self.sidebar=tk.Frame(body,bg=PALETTE['surface'],width=225)
+        self.sidebar.pack(side=self.leading,fill='y',padx=(0,1));self.sidebar.pack_propagate(False)
+        widget_label(self.sidebar,self.t('library'),size=10,color='muted',bold=True).pack(anchor=self.anchor,padx=14,pady=(19,12))
+        categories=tk.Frame(self.sidebar,bg=PALETTE['surface'])
+        categories.pack(fill='both',expand=True,padx=7)
+        self.sidebar_tree=ttk.Treeview(categories,show='tree',selectmode='browse',style='Library.Treeview',height=15)
+        self.sidebar_tree.pack(fill='both',expand=True)
+        self.library_nodes={}
+        self.library_nodes['all']=self.sidebar_tree.insert('','end',text=shape(self.t('all')),image=self._image('cat-all'),open=True)
+        status_root=self.sidebar_tree.insert('','end',text=shape(self.t('sidebar_statuses')),image=self._image('cat-folder'),open=True)
+        for key in ('active','queued','done','paused','failed'):
+            self.library_nodes[key]=self.sidebar_tree.insert(status_root,'end',text=shape(self.t(key)),image=self._image('cat-'+key))
+        kinds_root=self.sidebar_tree.insert('','end',text=shape(self.t('sidebar_categories')),image=self._image('cat-folder'),open=True)
+        for key in ('video','music','images','documents','archives','other'):
+            self.library_nodes[key]=self.sidebar_tree.insert(kinds_root,'end',text=shape(self.t(key)),image=self._image('cat-'+key))
+        self.sidebar_tree.bind('<<TreeviewSelect>>',self._tree_filter)
+        self._selecting_filter=False
+        divider=tk.Frame(self.sidebar,bg=PALETTE['line'],height=1);divider.pack(fill='x',padx=12)
+        widget_label(self.sidebar,self.t('sidebar_tip'),size=9,color='muted',wraplength=187,justify='right' if self.rtl else 'left').pack(anchor=self.anchor,padx=14,pady=(12,16))
+        if not self.show_sidebar:self.sidebar.pack_forget()
+        panel=tk.Frame(body,bg=PALETTE['bg']);panel.pack(side=self.trailing,fill='both',expand=True)
+        bar=tk.Frame(panel,bg=PALETTE['bg'],padx=18,pady=11)
+        bar.pack(fill='x')
+        self.section_label=widget_label(bar,self.t('all'),size=14,bold=True)
+        self.section_label.pack(side=self.leading)
+        self.count_label=widget_label(bar,self.t('items',count=0),size=9,color='muted')
+        self.count_label.pack(side=self.leading,padx=11)
         self.search_var=tk.StringVar()
-        search=widget_entry(searchbar,textvariable=self.search_var,justify='right' if self.rtl else 'left',width=22)
-        search.pack(side=self.leading,fill='x',expand=True,ipady=7)
+        search_box=tk.Frame(bar,bg=PALETTE['surface2'],highlightthickness=1,highlightbackground=PALETTE['line'])
+        search_box.pack(side=self.trailing,fill='x')
+        widget_label(search_box,'⌕',size=15,color='accent').pack(side=self.leading,padx=(9,3))
+        self.search_entry=widget_entry(search_box,textvariable=self.search_var,width=29,
+                                       justify='right' if self.rtl else 'left')
+        self.search_entry.pack(side=self.leading,ipady=6,padx=5)
         self.search_var.trace_add('write',lambda *_:self.refresh())
-        widget_label(searchbar, self.t('search'), size=10, color='muted').pack(side=self.leading,padx=9)
-        widget_button(searchbar,self.t('resume'),self.resume_selected).pack(side=self.trailing,padx=3)
-        widget_button(searchbar,self.t('pause'),self.pause_selected).pack(side=self.trailing,padx=3)
-        widget_button(searchbar,self.t('remove'),self.remove_selected).pack(side=self.trailing,padx=3)
-
-        bottom=tk.Frame(self.main,bg=PALETTE['bg'],padx=23,pady=7);bottom.pack(side='bottom',fill='x')
-        self.browser_status=widget_label(bottom, self.t('browser_on' if self.bridge else 'browser_off'), size=9, color='muted')
-        self.browser_status.pack(side=self.leading)
-        widget_button(bottom,self.t('copy_pair'),self.copy_pairing).pack(side=self.leading,padx=5)
-        self.update_button=widget_button(bottom,self.t('update_check'),self.check_update)
-        self.update_button.pack(side=self.trailing,padx=4)
-        widget_button(bottom,self.t('pause_all'),self.manager.pause_all).pack(side=self.trailing,padx=4)
-        widget_button(bottom,self.t('resume_all'),self.manager.resume_all).pack(side=self.trailing,padx=4)
-        self.update_status=widget_label(self.main, '', size=9, color='muted')
-        self.update_status.pack(side='bottom',anchor=self.anchor,padx=26)
-        if self._pending_update:
-            self.update_status.configure(text=shape(self.t('update_available_status',version=self._pending_update['version'])))
-            self.update_button.configure(text=shape(self.t('update_download_btn')),command=self.download_pending_update)
-        if self._ready_update:
-            self.update_status.configure(text=shape(self.t('update_ready',version=self._ready_update[0]['version'])))
-            self.update_button.configure(text=shape(self.t('update_ready_btn')),command=self.install_ready_update)
-        details=tk.Frame(self.main,bg=PALETTE['surface'],padx=14,pady=8)
-        details.pack(side='bottom',fill='x',padx=27,pady=(0,10))
-        self.details=widget_label(details, self.t('select_hint'), size=10, color='muted');self.details.pack(side=self.leading,fill='x',expand=True)
-        widget_button(details,self.t('open_folder'),self.open_directory).pack(side=self.trailing,padx=3)
-        widget_button(details,self.t('open_file'),self.open_file).pack(side=self.trailing,padx=3)
-        tablebox=tk.Frame(self.main,bg=PALETTE['surface'],highlightbackground=PALETTE['line'],highlightthickness=1)
-        tablebox.pack(fill='both',expand=True,padx=27,pady=(0,10))
-        heading=tk.Frame(tablebox,bg=PALETTE['surface'],padx=14,pady=11);heading.pack(fill='x')
-        self.section_label=widget_label(heading, self.t(self.filter), bold=True, size=12);self.section_label.pack(side=self.leading)
-        self.count_label=widget_label(heading, self.t('items', count=0), size=9, color='muted');self.count_label.pack(side=self.trailing)
-        wrap=tk.Frame(tablebox,bg=PALETTE['surface']);wrap.pack(fill='both',expand=True,padx=6,pady=(0,7))
-        cols=('state','speed','size','progress','name') if self.rtl else ('name','progress','size','speed','state')
-        self.tree=ttk.Treeview(wrap,columns=cols,show='headings',style='Maher.Treeview',selectmode='browse')
+        tablebox=tk.Frame(panel,bg=PALETTE['surface'],highlightbackground=PALETTE['line'],highlightthickness=1)
+        tablebox.pack(fill='both',expand=True,padx=15,pady=(0,7))
+        # Compact 7-column IDM-style file list with sort support and alternating rows.
+        cols=('description','added','state','speed','progress','size','name') if self.rtl else ('name','size','progress','speed','state','added','description')
+        self.tree=ttk.Treeview(tablebox,columns=cols,show='headings',selectmode='browse',style='Maher.Treeview')
+        sizes={'name':310,'size':96,'progress':125,'speed':98,'state':123,'added':116,'description':170}
         for col in cols:
-            width={'state':110,'speed':105,'size':108,'progress':170,'name':260}[col]
-            self.tree.heading(col,text=shape(self.t(col)),anchor='center' if col!='name' else self.anchor)
-            self.tree.column(col,width=width,minwidth=85,stretch=col=='name',anchor=self.anchor if col=='name' else 'center')
-        sb=ttk.Scrollbar(wrap,orient='vertical',command=self.tree.yview)
-        self.tree.configure(yscrollcommand=sb.set)
-        sb.pack(side='right',fill='y');self.tree.pack(side='left',fill='both',expand=True)
-        for status,key in [('done','green'),('error','red'),('paused','warn'),('running','text')]:
-            self.tree.tag_configure(status,foreground=PALETTE[key])
+            self.tree.heading(col,text=shape(self.t(col)),command=lambda k=col:self.sort_downloads(k),anchor=self.anchor if col=='name' else 'center')
+            self.tree.column(col,width=sizes[col],minwidth=78,stretch=col in ('name','description'),anchor=self.anchor if col in ('name','description') else 'center')
+        scrolly=ttk.Scrollbar(tablebox,orient='vertical',command=self.tree.yview)
+        scrollx=ttk.Scrollbar(tablebox,orient='horizontal',command=self.tree.xview)
+        self.tree.configure(yscrollcommand=scrolly.set,xscrollcommand=scrollx.set)
+        scrolly.pack(side='right',fill='y');scrollx.pack(side='bottom',fill='x')
+        self.tree.pack(side='left',fill='both',expand=True)
+        self.tree.tag_configure('even',background=PALETTE['surface'])
+        self.tree.tag_configure('odd',background=PALETTE['surface2'])
         self.tree.bind('<<TreeviewSelect>>',self.on_select)
         self.tree.bind('<Double-1>',lambda _:self.open_file())
         self.tree.bind('<Button-3>',self.right_click)
+        preview=tk.Frame(panel,bg=PALETTE['surface'],padx=13,pady=8)
+        preview.pack(fill='x',padx=15,pady=(0,6))
+        self.details=widget_label(preview,self.t('select_hint'),size=9,color='muted')
+        self.details.pack(side=self.leading,fill='x',expand=True)
+        widget_button(preview,self.t('open_folder'),self.open_directory).pack(side=self.trailing,padx=3)
+        widget_button(preview,self.t('open_file'),self.open_file).pack(side=self.trailing,padx=3)
+        status=tk.Frame(self,bg=PALETTE['surface2'],padx=15,pady=6)
+        status.pack(side='bottom',fill='x')
+        self.status_summary=widget_label(status,'',size=9,color='muted')
+        self.status_summary.pack(side=self.leading)
+        self.browser_status=widget_label(status,self.t('browser_on' if self.bridge else 'browser_off'),size=9,color='muted')
+        self.browser_status.pack(side=self.trailing,padx=8)
+        widget_button(status,self.t('copy_pair'),self.copy_pairing).pack(side=self.trailing,padx=4)
+        self.update_status=widget_label(status,'',size=9,color='accent')
+        self.update_status.pack(side=self.trailing,padx=6)
+        if self._pending_update:
+            self.update_status.configure(text=shape(self.t('update_available_status',version=self._pending_update['version'])))
+            self.update_button.configure(text=shape(self.t('update_download_btn')),command=self.download_pending_update)
+            self.update_button.pack(side=self.trailing,padx=6,pady=19)
+        if self._ready_update:
+            self.update_status.configure(text=shape(self.t('update_ready',version=self._ready_update[0]['version'])))
+            self.update_button.configure(text=shape(self.t('update_ready_btn')),command=self.install_ready_update)
+            self.update_button.pack(side=self.trailing,padx=6,pady=19)
+
+    def _tree_filter(self,event=None):
+        if self._selecting_filter:return
+        ids=self.sidebar_tree.selection()
+        if not ids:return
+        for key,widget_id in self.library_nodes.items():
+            if ids[0]==widget_id:
+                self.filter=key
+                self.refresh()
+                break
+
+    def toggle_sidebar(self):
+        self.show_sidebar=not self.show_sidebar
+        self.rebuild()
+
+    def toggle_language(self):
+        self.manager.configure(language='en' if self.rtl else 'fa')
+        self.rebuild()
+
+    def focus_search(self):
+        self.search_entry.focus_set()
+        self.search_entry.selection_range(0,'end')
+
+    def schedule_download(self):
+        AddDialog(self,scheduled=True)
+
+    def about(self):
+        messagebox.showinfo(self.t('menu_about'),self.t('about_text',version=APP_VERSION),parent=self)
+
+    def sort_downloads(self,key):
+        alias={'added':'added_at','name':'filename','size':'total','progress':'downloaded','state':'status','speed':'speed','description':'url'}
+        field=alias.get(key,'added_at')
+        if self.sort_by==field:self.sort_reverse=not self.sort_reverse
+        else:self.sort_by=field;self.sort_reverse=field in ('added_at','total','downloaded','speed')
+        self.refresh()
 
     def choose_filter(self,key):
         self.filter=key
-        for k,b in self.filter_buttons.items():
-            b.configure(bg=PALETTE['surface2'] if k==key else PALETTE['surface'],
-                        fg=PALETTE['accent'] if k==key else PALETTE['muted'])
+        if key in self.library_nodes:
+            self._selecting_filter=True
+            self.sidebar_tree.selection_set(self.library_nodes[key])
+            self._selecting_filter=False
         self.refresh()
 
     def cycle_theme(self):
@@ -397,28 +523,44 @@ class App(Root):
         if not hasattr(self,'tree') or not self.tree.winfo_exists():return
         jobs=self.manager.list_jobs()
         visible=[j for j in jobs if self._matches(j)]
+        def sort_value(job):
+            value=job.get(self.sort_by,'')
+            return value.lower() if isinstance(value,str) else (value if value is not None else -1)
+        visible.sort(key=sort_value,reverse=self.sort_reverse)
         existing=set(self.tree.get_children());ids={j['id'] for j in visible}
-        for id_ in existing-ids:self.tree.delete(id_)
+        for job_id in existing-ids:self.tree.delete(job_id)
         for index,j in enumerate(visible):
-            total=j['total'];pct=min(100,round(100*j['downloaded']/total)) if total else 0
-            progress=('■'*round(pct/10)+'·'*(10-round(pct/10))+f' {pct}%') if total else \
-                     ('✓ 100%' if j['status']=='done' else human_size(j['downloaded']))
-            row={'state':shape(self.t(STATUS_KEYS.get(j['status'],'status_error'))),
-                 'speed':human_size(j['speed'])+'/s' if j['status']=='running' else '—',
+            total=j['total'];pct=min(100,round(100*j['downloaded']/total)) if total else (100 if j['status']=='done' else 0)
+            progress=('━'*round(pct/10)+'┄'*(10-round(pct/10))+f' {pct}%') if total or j['status']=='done' else '—'
+            host=urlsplit(j['url']).hostname or ''
+            date=(j.get('added_at') or '')[:16].replace('T',' ')
+            status=shape(self.t(STATUS_KEYS.get(j['status'],'status_error')))
+            row={'state':status,'speed':human_size(j['speed'])+'/s' if j['status']=='running' else '—',
                  'size':human_size(total or j['downloaded']), 'progress':progress,
-                 'name':shape(j['filename'])}
-            cols=self.tree['columns']
-            values=[row[col] for col in cols]
-            if j['id'] not in existing:self.tree.insert('','end',iid=j['id'],values=values,tags=(j['status'],))
-            else:self.tree.item(j['id'],values=values,tags=(j['status'],))
+                 'name':shape(j['filename']), 'added':date,'description':host}
+            values=[row[col] for col in self.tree['columns']]
+            if j['id'] not in existing:self.tree.insert('','end',iid=j['id'],values=values,tags=('even' if index%2==0 else 'odd',))
+            else:self.tree.item(j['id'],values=values,tags=('even' if index%2==0 else 'odd',))
             self.tree.move(j['id'],'',index)
         if self.selected in ids:self.tree.selection_set(self.selected)
-        self.cards['total'].configure(text=str(len(jobs)))
-        self.cards['running'].configure(text=str(sum(j['status']=='running' for j in jobs)))
-        self.cards['done'].configure(text=str(sum(j['status']=='done' for j in jobs)))
-        self.cards['speed'].configure(text=human_size(sum(j['speed'] for j in jobs if j['status']=='running')))
+        counts={'all':len(jobs)}
+        for key in ('active','queued','done','paused','failed'):
+            target={'active':'running','failed':'error'}.get(key,key)
+            counts[key]=sum(j['status']==target for j in jobs)
+        for key in ('video','music','images','documents','archives','other'):
+            counts[key]=sum(CATEGORY_KEYS.get(j['category'])==key for j in jobs)
+        for key,node in self.library_nodes.items():
+            label=f'{self.t(key)}   {counts[key]}'
+            self.sidebar_tree.item(node,text=shape(label))
+        wanted=self.library_nodes.get(self.filter)
+        if wanted and self.sidebar_tree.selection()!= (wanted,):
+            self._selecting_filter=True
+            self.sidebar_tree.selection_set(wanted)
+            self._selecting_filter=False
         self.section_label.configure(text=shape(self.t(self.filter)))
         self.count_label.configure(text=shape(self.t('items',count=len(visible))))
+        active=counts['active'];speed=sum(j['speed'] for j in jobs if j['status']=='running')
+        self.status_summary.configure(text=shape(self.t('status_summary',total=len(jobs),active=active,done=counts['done'],speed=human_size(speed))))
         self._update_details()
 
     def on_select(self,event=None):
@@ -476,10 +618,18 @@ class App(Root):
         menu=tk.Menu(self,tearoff=0,bg=PALETTE['surface2'],fg=PALETTE['text'],
                      activebackground=PALETTE['accent'],activeforeground=PALETTE.get('buttonText','#081A1D'))
         for key,action in [('menu_resume',self.resume_selected),('menu_pause',self.pause_selected),
-                           ('menu_folder',self.open_directory),('menu_remove',self.remove_selected)]:
+                           ('menu_folder',self.open_directory),('menu_copy_url',self.copy_url),('menu_open_url',self.open_url),('menu_remove',self.remove_selected)]:
             menu.add_command(label=shape(self.t(key)),command=action)
         try:menu.tk_popup(event.x_root,event.y_root)
         finally:menu.grab_release()
+
+    def copy_url(self):
+        job=self.manager.find(self.selected) if self.selected else None
+        if job:self.clipboard_clear();self.clipboard_append(job.url)
+
+    def open_url(self):
+        job=self.manager.find(self.selected) if self.selected else None
+        if job and urlsplit(job.url).scheme in ('http','https'):webbrowser.open(job.url)
 
     def _on_drop(self,data):
         s=data.strip().strip('{}')
@@ -564,6 +714,7 @@ class App(Root):
                 if not data:
                     self._update_busy=False
                     self.update_status.configure(text=shape(self.t('update_latest')))
+                    self.update_button.pack_forget()
                     if not automatic:messagebox.showinfo(self.t('update_title'),self.t('update_latest'),parent=self)
                 elif automatic and self.manager.auto_download_updates:
                     self._start_update_download(data,True)
@@ -574,12 +725,14 @@ class App(Root):
                     self.update_status.configure(text=shape(self.t('update_available_status',version=data['version'])))
                     self._pending_update=data
                     self.update_button.configure(text=shape(self.t('update_download_btn')),command=self.download_pending_update)
+                    self.update_button.pack(side=self.trailing,padx=6,pady=19)
             elif event=='ready':
                 self._update_busy=False
                 self._ready_update=data
                 self._pending_update=None
                 self.update_status.configure(text=shape(self.t('update_ready',version=data[0]['version'])))
                 self.update_button.configure(text=shape(self.t('update_ready_btn')),command=self.install_ready_update)
+                self.update_button.pack(side=self.trailing,padx=6,pady=19)
                 if not automatic:self.install_ready_update()
         self.after(450,self._poll)
 

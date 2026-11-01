@@ -19,12 +19,12 @@ class FakeResponse:
 class UpdaterTests(unittest.TestCase):
     def test_github_version_and_assets(self):
         session=Mock()
-        session.get.return_value=FakeResponse({'tag_name':'v2.2.0','html_url':'https://github.com/u/r/releases/tag/v2.1.0','assets':[
+        session.get.return_value=FakeResponse({'tag_name':'v2.3.0','html_url':'https://github.com/u/r/releases/tag/v2.3.0','assets':[
             {'name':'MaherDownloader-Setup.exe','browser_download_url':'https://cdn.example/setup'},
             {'name':'MaherDownloader-Setup.exe.sha256','browser_download_url':'https://cdn.example/sha'}]})
         result=find_update('u/r',session=session)
-        self.assertEqual(result['version'],'2.2.0')
-        self.assertIsNone(find_update('u/r',current='2.2.0',session=session))
+        self.assertEqual(result['version'],'2.3.0')
+        self.assertIsNone(find_update('u/r',current='2.3.0',session=session))
         with self.assertRaises(ValueError):find_update('u/r/../../bad',session=session)
 
     def test_sha256_verified(self):

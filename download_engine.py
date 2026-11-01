@@ -108,7 +108,7 @@ class DownloadManager:
         self.connections = max(1,min(int(connections),16))
         self.parallel = max(1,min(int(parallel),6))
         self.proxy = ''
-        self.theme = 'فیروزه‌ای'
+        self.theme = 'نگار ایرانی'
         self.update_repo = ''
         self.language = 'fa'
         self.auto_check_updates = True

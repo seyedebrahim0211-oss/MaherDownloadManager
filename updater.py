@@ -8,7 +8,7 @@ import subprocess
 import tempfile
 import requests
 
-APP_VERSION = '2.1.0'
+APP_VERSION = '2.2.0'
 REPO_RE = re.compile(r'^[A-Za-z\d_.-]+/[A-Za-z\d_.-]+$')
 SETUP_NAME = 'MaherDownloader-Setup.exe'
 

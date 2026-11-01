@@ -1,4 +1,4 @@
-Maher Download Manager v2.1.0 — GitHub Upload
+Maher Download Manager v2.2.0 — GitHub Upload
 
 Repo: https://github.com/seyedebrahim0211-oss/MaherDownloadManager
 
@@ -8,7 +8,7 @@ Repo: https://github.com/seyedebrahim0211-oss/MaherDownloadManager
 3. Commit all changes on branch main and Push Origin.
 4. Open GitHub -> Actions -> Windows Installer - Build and Release.
 5. On a successful run, download MaherDownloader-Windows-Installer from Artifacts.
-6. Publish tag v2.1.0 in Releases to publish the EXE and SHA-256 asset.
+6. Publish tag v2.2.0 in Releases to publish the EXE and SHA-256 asset.
 7. On installed machines, updates check once every 24h and download verified releases.
    Installation asks user approval.
 

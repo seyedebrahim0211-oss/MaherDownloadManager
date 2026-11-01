@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>راهنمای نصب فارسی ماهر دانلود منیجر | نسخه ۲.۲</title>
+<style>
+  :root { --ink:#14253b; --sub:#536778; --turquoise:#087d80; --turqSoft:#e5f4f1; --gold:#c3934c; --cream:#f9f6ef; --line:#dbe5e4; --paper:#fff; }
+  * { box-sizing: border-box; }
+  html { scroll-behavior:smooth; }
+  body { direction:rtl; text-align:right; margin:0; font-family:"Vazirmatn", "Noto Sans Arabic", "Tahoma", sans-serif; background:#f4f7f7; color:var(--ink); line-height:2.05; font-size:14px; }
+  .wrap { width:min(100% - 34px,920px); margin:0 auto; }
+  .hero { background:linear-gradient(120deg,#0f2a40,#10464b); color:#fff; padding:52px 0 39px; position:relative; overflow:hidden; }
+  .hero:before{ content:"✦"; position:absolute; left:9%; top:-105px; font-size:310px; opacity:.085; transform:rotate(-20deg); }
+  .eyebrow { color:#c8e7df; font-size:12px; letter-spacing:.15px; }
+  h1 { margin:10px 0 12px; font-size:34px; font-weight:800; line-height:1.65; }
+  .hero p{margin:0; color:#e3f0ef; max-width:680px; }
+  .tags{display:flex; flex-wrap:wrap; gap:10px; margin-top:22px; }
+  .tags span { border:1px solid #588a89; border-radius:24px; font-size:12px; padding:2px 13px; color:#e6f7f5; }
+  main { margin-top:24px; margin-bottom:48px; }
+  .notice { border-right:5px solid var(--gold); background:#fff9ec; border-radius:12px; padding:15px 20px; margin-bottom:22px; }
+  .notice strong { color:#785419; }
+  nav { padding:18px 21px; border:1px solid var(--line); background:#fff; border-radius:15px; margin-bottom:22px; }
+  nav .links { display:flex; flex-wrap:wrap; gap:9px 22px; }
+  nav a, a { color:#087c80; text-decoration:none; }
+  nav a:hover, a:hover { text-decoration:underline; }
+  .section { background:var(--paper); border:1px solid var(--line); border-radius:17px; padding:24px 30px; margin-bottom:19px; break-inside:avoid; }
+  h2 { margin:0 0 16px; padding-bottom:9px; border-bottom:1px solid var(--line); font-size:21px; line-height:1.5; color:#17424c; }
+  h3 { font-size:16px; margin:18px 0 8px; color:#1e4850; }
+  p { margin:8px 0 13px; }
+  .step { display:flex; align-items:flex-start; gap:14px; margin:12px 0 18px; break-inside:avoid; }
+  .number { display:flex; align-items:center; justify-content:center; flex:none; width:33px; height:33px; border-radius:11px; background:var(--turqSoft); color:var(--turquoise); font-weight:800; font-size:17px; line-height:1; margin-top:4px; }
+  .step > div:last-child {flex:1}
+  .step strong { display:block; margin-bottom:2px; }
+  .step p { margin:0; }
+  .path { direction:ltr; unicode-bidi:embed; display:inline-block; font-family:Consolas, "DejaVu Sans Mono", monospace; background:#edf2f4; border:1px solid #e2e9eb; color:#173347; border-radius:5px; padding:0px 6px; font-size:12px; line-height:1.8; white-space:normal; overflow-wrap:anywhere; }
+  .btnpath {background:#f5f8fa; border-radius:10px; border:1px dashed #b5ccce; padding:12px 16px; margin:12px 0; font-weight:600; }
+  .good {background:#e9f5ef; color:#155c47; border-radius:10px; padding:10px 14px; margin:13px 0; }
+  .bad {background:#fff2ee; color:#913e33; border-radius:10px; padding:10px 14px; margin:13px 0; }
+  ul { padding-right:22px; margin:8px 0 15px; }
+  li { margin:6px 0; }
+  .muted { color:var(--sub); }
+  .twocol { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .mini { padding:14px 17px; background:#f8fbfa; border:1px solid var(--line); border-radius:10px; }
+  .mini strong {color:#21525a}
+  footer {text-align:center; font-size:12px; color:#687d85; padding:10px 0 30px; }
+  @media (max-width:650px) {h1{font-size:25px}.section{padding:20px 18px}.twocol{grid-template-columns:1fr}body{font-size:13px}}
+  @page { size:A4; margin:14mm 14mm 15mm; }
+  @media print { html,body { background:#fff; -webkit-print-color-adjust:exact; print-color-adjust:exact;} .wrap{width:100%;max-width:none} .hero{padding:18px 0 15px} h1{font-size:25px} main{margin-top:12px} .section{padding:15px 17px;margin-bottom:10px;break-inside:auto} .step{break-inside:avoid} h2{break-after:avoid;font-size:18px} .notice, nav { break-inside:avoid } nav{display:none} footer{padding:10px 0 0} }
+</style>
+</head>
+<body>
+<header class="hero"><div class="wrap">
+  <div class="eyebrow">راهنمای رسمی نصب و راه‌اندازی · ویرایش اصلاح‌شده</div>
+  <h1>ماهر دانلود منیجر</h1>
+  <p>آموزش قدم‌به‌قدم و کاملاً فارسی برای نصب برنامه، ساخت فایل EXE در گیت‌هاب، فعال کردن افزونه مرورگر و دریافت به‌روزرسانی.</p>
+  <div class="tags"><span>ویندوز ۱۰ و ۱۱</span><span>نسخه ۲.۰</span><span>بدون نیاز به دانش برنامه‌نویسی برای نصب نسخه آماده</span></div>
+</div></header>
+<main class="wrap">
+  <div class="notice"><strong>قبل از شروع:</strong> فایل <span class="path">MaherDownloader-v2.0-GitHub-Source.zip</span> شامل «کد برنامه و ابزار ساخت» است، نه یک نصب‌کننده آماده. برای نصب ساده، ابتدا باید فایل <span class="path">MaherDownloader-Setup.exe</span> از قسمت Releases مخزن منتشر شده باشد. اگر هنوز وجود ندارد، روش دوم را انجام دهید.</div>
+  <nav><strong>انتخاب راهنما:</strong><div class="links"><a href="#install">۱. نصب ساده با EXE</a><a href="#github">۲. ساخت EXE با GitHub</a><a href="#browser">۳. افزونه مرورگر</a><a href="#updates">۴. به‌روزرسانی</a><a href="#trouble">۵. رفع مشکل</a></div></nav>
+  <section class="section" id="install">
+    <h2>روش اول: نصب ساده برنامه روی ویندوز</h2>
+    <div class="step"><div class="number">۱</div><div><strong>مخزن برنامه را باز کنید.</strong><p>به مخزن پروژه خود در سایت <span class="path">github.com</span> بروید و در ستون سمت راست (یا بخش بالای مخزن) گزینه <span class="path">Releases</span> را باز کنید.</p></div></div>
+    <div class="step"><div class="number">۲</div><div><strong>نصب‌کننده را دریافت کنید.</strong><p>در آخرین نسخه منتشرشده، بخش <span class="path">Assets</span> را باز کنید و <span class="path">MaherDownloader-Setup.exe</span> را دانلود کنید. فایل ZIP کد منبع برای نصب مستقیم مناسب نیست.</p></div></div>
+    <div class="step"><div class="number">۳</div><div><strong>برنامه را نصب کنید.</strong><p>فایل EXE را با دو بار کلیک اجرا کنید، مراحل Setup را تا پایان انجام دهید و ماهر دانلود منیجر را از منوی Start باز کنید. برای نسخه EXE نیازی به نصب جداگانه Python ندارید.</p></div></div>
+    <div class="good">اگر در Releases فایل EXE نمی‌بینید، ابتدا روش دوم را انجام دهید تا GitHub برای شما آن را بسازد.</div>
+  </section>
+  <section class="section" id="github">
+    <h2>روش دوم: ساخت فایل نصب EXE از طریق GitHub</h2>
+    <p class="muted">این روش برای صاحب پروژه است. ساخت نصب‌کننده روی کامپیوتر ویندوزی GitHub انجام می‌شود و نیازی به نصب Python روی رایانه شما ندارد.</p>
+    <div class="step"><div class="number">۱</div><div><strong>یک مخزن ایجاد کنید.</strong><p>در GitHub روی <span class="path">New repository</span> بزنید؛ نامی مثل <span class="path">MaherDownloadManager</span> انتخاب کنید و مخزن را بسازید.</p></div></div>
+    <div class="step"><div class="number">۲</div><div><strong>فایل ZIP را استخراج کنید.</strong><p>روی فایل ZIP راست‌کلیک کنید و <span class="path">Extract All</span> را بزنید. سپس محتویات <em>داخل پوشه پروژه</em> را انتخاب کنید؛ خود ZIP را در مخزن قرار ندهید.</p></div></div>
+    <div class="step"><div class="number">۳</div><div><strong>تمام فایل‌ها را در ریشه مخزن آپلود کنید.</strong><p>در مخزن <span class="path">Add file → Upload files</span> را بزنید، تمام پوشه‌ها و فایل‌ها را اضافه کنید و <span class="path">Commit changes</span> را انتخاب کنید. مطمئن شوید پوشه <span class="path">.github/workflows/</span> نیز منتقل شده باشد.</p></div></div>
+    <div class="step"><div class="number">۴</div><div><strong>ساخت خودکار را اجرا کنید.</strong><p>به <span class="path">Actions → Windows installer and GitHub Releases</span> بروید و روی <span class="path">Run workflow</span> کلیک کنید. شاخه پیش‌فرض <span class="path">main</span> یا <span class="path">master</span> را انتخاب کنید و دوباره <span class="path">Run workflow</span> بزنید.</p></div></div>
+    <div class="step"><div class="number">۵</div><div><strong>فایل نصب را دریافت کنید.</strong><p>اجرای تازه را باز کنید. پس از سبز شدن وضعیت، در پایین صفحه زیر <span class="path">Artifacts</span> مورد <span class="path">MaherDownloader-Windows-Installer</span> را دانلود کنید. ZIP خروجی را استخراج کنید؛ فایل <span class="path">MaherDownloader-Setup.exe</span> داخل آن است.</p></div></div>
+    <div class="step"><div class="number">۶</div><div><strong>انتشار رسمی نسخه برای دریافت به‌روزرسانی.</strong><p>برای منتشر کردن در <span class="path">Releases</span>، تگ نسخه مانند <span class="path">v2.0.0</span> ایجاد کنید. ساده‌ترین روش در وب: <span class="path">Releases → Draft a new release → Choose a tag → Create new tag</span>؛ سپس <span class="path">Publish release</span>. گردش‌کار GitHub با تگ اجرا می‌شود و فایل نصب را به نسخه منتشرشده اضافه می‌کند.</p></div></div>
+    <div class="good">توجه: جریان ساخت نسخه اصلاحی، فایل نصب را به Release موجود نیز اضافه می‌کند؛ بنابراین انتشار از رابط وب GitHub پشتیبانی می‌شود.</div>
+  </section>
+  <section class="section" id="browser">
+    <h2>روش سوم: فعال‌سازی افزونه دانلود مرورگر</h2>
+    <div class="twocol">
+      <div class="mini"><strong>Google Chrome</strong><p>در نوار آدرس <span class="path">chrome://extensions</span> را وارد کنید. <span class="path">Developer mode</span> را روشن کنید و <span class="path">Load unpacked</span> را بزنید. پوشه <span class="path">browser-extension</span> را انتخاب کنید.</p></div>
+      <div class="mini"><strong>Microsoft Edge</strong><p>آدرس <span class="path">edge://extensions</span> را باز کنید. <span class="path">Developer mode</span> را روشن کنید و از <span class="path">Load unpacked</span> پوشه <span class="path">browser-extension</span> را اضافه کنید.</p></div>
+    </div>
+    <p><strong>اتصال به برنامه:</strong> ماهر دانلود منیجر را اجرا کنید، دکمه «کپی کد اتصال مرورگر» را بزنید، روی آیکون افزونه کلیک کنید، کد را جای‌گذاری و ذخیره کنید. سپس در صورت تمایل «انتقال خودکار دانلودهای جدید مرورگر» را فعال کنید.</p>
+    <p class="muted">افزونه Firefox فعلاً آزمایشی و موقت است: <span class="path">about:debugging → This Firefox → Load Temporary Add-on</span> و انتخاب فایل <span class="path">browser-extension-firefox/manifest.json</span>.</p>
+  </section>
+  <section class="section" id="updates">
+    <h2>به‌روزرسانی برنامه چگونه کار می‌کند؟</h2>
+    <p>برنامه نصب‌شده هنگام شروع، در صورت دسترسی به اینترنت نسخه‌های جدید را از GitHub Releases بررسی می‌کند. با انتشار نسخه جدید و فایل نصب دارای هش <span class="path">SHA-256</span>، برنامه به کاربر اطلاع می‌دهد و بعد از تأیید او نصب‌کننده را اجرا می‌کند. نصب بدون تأیید کاربر انجام نمی‌شود.</p>
+    <div class="notice"><strong>نکته مهم برای سازنده:</strong> برای فعال بودن آپدیت در نسخه منتشرشده، فایل EXE باید توسط GitHub Actions همان مخزن ساخته شده باشد تا نشانی مخزن در برنامه ثبت شود. صرفاً کپی کردن سورس، به‌روزرسانی را فعال نمی‌کند.</div>
+  </section>
+  <section class="section" id="trouble">
+    <h2>عیب‌یابی خطاهای رایج</h2>
+    <h3>گزینه Run workflow وجود ندارد</h3>
+    <p>بررسی کنید فایل <span class="path">.github/workflows/windows-release.yml</span> در شاخه پیش‌فرض قرار گرفته و Actions مخزن فعال باشد. یک بار صفحه را تازه‌سازی کنید.</p>
+    <h3>ساخت ویندوز با رنگ قرمز متوقف شد</h3>
+    <p>روی اجرای ناموفق در Actions کلیک کنید، مرحله خطادار را باز کنید و متن خطای همان مرحله را بررسی کنید. ساخت EXE تا زمانی که اجرا سبز نشود، تأییدشده نیست.</p>
+    <h3>فایل EXE را پیدا نمی‌کنم</h3>
+    <p>پس از اجرای موفق، <span class="path">Artifacts</span> را دانلود و ZIP مربوط به آن را استخراج کنید. برای نصب کاربران عادی، نسخه رسمی را از <span class="path">Releases → Assets</span> دانلود کنید.</p>
+    <h3>افزونه نوشته «برنامه متصل نیست»</h3>
+    <p>خود برنامه باید باز باشد؛ کد اتصال باید از همان نصب فعلی کپی شده باشد. در صورت تغییر برنامه، کد را دوباره در افزونه ذخیره کنید.</p>
+    <h3>متن‌های فارسی نامرتب نمایش داده می‌شوند</h3>
+    <p>این فایل HTML دارای <span class="path">UTF-8</span> و <span class="path">dir=rtl</span> است؛ آن را مستقیماً در Edge یا Chrome باز کنید. برای مشاهده بدون مرورگر از PDF همراه بسته استفاده کنید.</p>
+    <h3>محدودیت ویدیو و DRM</h3>
+    <p>پشتیبانی از ویدیوهای عمومیِ مجاز و HLS بدون DRM وابسته به شرایط منبع است. این برنامه محافظت DRM را دور نمی‌زند و دانلود همه محتواها یا تمام دریافت‌های داخلی مرورگر را تضمین نمی‌کند.</p>
+  </section>
+</main>
+<footer>ماهر دانلود منیجر · راهنمای فارسی نسخه ۲.۰ · مناسب مطالعه در مرورگر و چاپ A4</footer>
+</body>
+</html>

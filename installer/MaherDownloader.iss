@@ -1,5 +1,5 @@
 #define MyAppName "Maher Download Manager"
-#define MyAppVersion "2.1.0"
+#define MyAppVersion "2.2.0"
 #define MyAppExeName "MaherDownloader.exe"
 [Setup]
 AppId={{36C975CC-DAF1-42A7-BDCB-4675031D3900}
