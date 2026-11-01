@@ -20,7 +20,7 @@ class BrowserBridgeTests(unittest.TestCase):
                 bad=requests.post(url+'/add',headers={'Origin':'https://evil.example','X-Maher-Token':manager.pairing_token},json={'url':'https://example.com/f.zip'},timeout=4)
                 self.assertEqual(bad.status_code,403)
                 wrong=requests.post(url+'/add',headers={'Origin':'chrome-extension://testing123','X-Maher-Token':'wrong'},json={'url':'https://example.com/f.zip'},timeout=4)
-                self.assertEqual(wrong.status_code,403)
+                self.assertEqual(wrong.status_code,401)
                 good=requests.post(url+'/add',headers={'Origin':'chrome-extension://testing123','X-Maher-Token':manager.pairing_token},json={'url':'https://example.com/f.zip'},timeout=4)
                 self.assertEqual(good.status_code,200,good.text)
                 self.assertEqual(len(manager.jobs),1)

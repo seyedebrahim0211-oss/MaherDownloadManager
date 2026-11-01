@@ -15,9 +15,13 @@ async function submit(url,kind='auto'){
   setStatus(res?.ok?'✓ برنامه متصل است':(res?.error||'برنامه را اجرا کنید.'),!res?.ok);
 })();
 $('pair').onclick=async()=>{
-  await chrome.storage.local.set({pairingToken:$('token').value.trim()});
-  const res=await chrome.runtime.sendMessage({action:'health'});
-  setStatus(res?.ok?'✓ اتصال برقرار شد':(res?.error||'اتصال ناموفق'),!res?.ok);
+  $('pair').disabled=true;
+  setStatus('در حال بررسی اتصال…');
+  try {
+    const res=await chrome.runtime.sendMessage({action:'pair',token:$('token').value});
+    setStatus(res?.ok?'✓ اتصال برقرار شد؛ کد ذخیره شد.':res?.error||'اتصال ناموفق',!res?.ok);
+  } catch(_) {setStatus('افزونه پاسخ نداد؛ آن را مجدد بارگذاری کنید.',true);}
+  finally {$('pair').disabled=false;}
 };
 $('auto').onchange=async()=>{await chrome.storage.local.set({autoCapture:$('auto').checked});setStatus($('auto').checked?'دریافت خودکار فعال شد.':'دریافت خودکار غیرفعال شد.');};
 $('send').onclick=()=>submit($('url').value.trim());

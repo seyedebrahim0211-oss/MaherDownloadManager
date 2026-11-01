@@ -642,7 +642,12 @@ class App(Root):
         if s.startswith(('https://','http://','ftp://')):AddDialog(self,s)
 
     def copy_pairing(self):
-        self.clipboard_clear();self.clipboard_append(self.manager.pairing_token)
+        if self.bridge is None:
+            messagebox.showerror(self.t('pair_title'),self.t('pair_port_busy'),parent=self)
+            return
+        self.clipboard_clear()
+        self.clipboard_append(self.manager.pairing_token)
+        self.update_idletasks()
         messagebox.showinfo(self.t('pair_title'),self.t('pair_copied'),parent=self)
 
     def _scheduled_check(self):

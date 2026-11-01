@@ -33,7 +33,7 @@ class DesktopUITests(unittest.TestCase):
             self.assertTrue(tr(key,'en',total=1,active=0,done=1,speed='1 MB'), key)
 
     def test_release_version_and_installer(self):
-        self.assertEqual(APP_VERSION,'2.2.0')
-        self.assertIn('#define MyAppVersion "2.2.0"',(ROOT/'installer'/'MaherDownloader.iss').read_text(encoding='utf-8'))
+        self.assertEqual(APP_VERSION,'2.2.1')
+        self.assertIn('#define MyAppVersion "2.2.1"',(ROOT/'installer'/'MaherDownloader.iss').read_text(encoding='utf-8'))
 
 if __name__ == '__main__':unittest.main()

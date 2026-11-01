@@ -22,9 +22,20 @@ def start_bridge(manager, port=PORT):
             host = self.headers.get('Host','').split(':',1)[0].lower()
             return host in ('127.0.0.1','localhost','[::1]')
 
-        def _authorized(self):
-            token = self.headers.get('X-Maher-Token','')
-            return bool(self._origin() and self._host_valid() and token and hmac.compare_digest(token, manager.pairing_token))
+        def _access_error(self):
+            if not self._host_valid():return 403, 'invalid_host'
+            if not self._origin():return 403, 'invalid_origin'
+            token=self.headers.get('X-Maher-Token','')
+            if not token or not hmac.compare_digest(token,manager.pairing_token):return 401, 'invalid_code'
+            return None
+
+        def _authorize_or_respond(self):
+            error=self._access_error()
+            if error:
+                status,code=error
+                self._respond(status,{'ok':False,'error_code':code})
+                return False
+            return True
 
         def _respond(self, status, obj):
             payload = json.dumps(obj,ensure_ascii=False).encode('utf-8')
@@ -38,6 +49,7 @@ def start_bridge(manager, port=PORT):
                 self.send_header('Access-Control-Allow-Headers','Content-Type, X-Maher-Token')
                 self.send_header('Access-Control-Allow-Methods','GET, POST, OPTIONS')
             self.send_header('Cache-Control','no-store')
+            self.send_header('X-Content-Type-Options','nosniff')
             self.end_headers()
             try:self.wfile.write(payload)
             except (BrokenPipeError,ConnectionResetError):pass
@@ -47,11 +59,13 @@ def start_bridge(manager, port=PORT):
             self._respond(200,{'ok':True})
 
         def do_GET(self):
-            if self.path!='/health' or not self._authorized():return self._respond(403,{'ok':False,'error':'Pair browser extension'})
-            self._respond(200,{'ok':True,'application':'Maher Download Manager'})
+            if self.path!='/health':return self._respond(404,{'ok':False,'error_code':'not_found'})
+            if not self._authorize_or_respond():return
+            self._respond(200,{'ok':True,'application':'Maher Download Manager','protocol':2})
 
         def do_POST(self):
-            if self.path!='/add' or not self._authorized():return self._respond(403,{'ok':False,'error':'Pair browser extension'})
+            if self.path!='/add':return self._respond(404,{'ok':False,'error_code':'not_found'})
+            if not self._authorize_or_respond():return
             try:
                 size=int(self.headers.get('Content-Length','0'))
                 if not 0<size<=8192:raise ValueError('Invalid payload size')

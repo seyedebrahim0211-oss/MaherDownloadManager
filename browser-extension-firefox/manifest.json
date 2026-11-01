@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Maher Download Manager - Browser Companion",
-  "version": "2.0.0",
+  "version": "2.2.1",
   "description": "Browser companion with opt-in automatic capture and authenticated local pairing",
   "permissions": [
     "activeTab",

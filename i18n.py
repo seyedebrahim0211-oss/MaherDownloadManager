@@ -95,6 +95,7 @@ TRANSLATIONS = {
  'menu_folder': ('باز کردن پوشه', 'Open folder'), 'menu_remove': ('حذف از فهرست', 'Remove from list'),
  'pair_title': ('اتصال مرورگر', 'Browser pairing'),
  'pair_copied': ('کد محرمانه کپی شد. آن را در افزونه مرورگر وارد کنید.', 'Pairing code copied. Paste it into the browser extension.'),
+ 'pair_port_busy': ('اتصال مرورگر غیرفعال است؛ احتمالاً نسخه دیگری از ماهر دانلود پورت ۱۷۶۹۱ را در اختیار دارد. همه نسخه‌های باز را ببندید و فقط یک نسخه اجرا کنید، سپس کد جدید را کپی کنید.', 'Browser connection unavailable. Another Maher instance may use port 17691. Close the other copies, restart one app, then copy its code.'),
  'update_title': ('به‌روزرسانی', 'Updates'),
  'update_repo_missing': ('ابتدا در تنظیمات، مخزن GitHub را وارد کنید.', 'Configure the GitHub repository in Settings first.'),
  'update_available': ('نسخه {version} منتشر شده است. اکنون دریافت شود؟', 'Version {version} is available. Download it now?'),
