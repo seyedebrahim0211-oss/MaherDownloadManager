@@ -1,0 +1,25 @@
+Maher Download Manager 2.0.0 - Offline Test Report
+2026-11-01
+
+Checks run (Linux/Xvfb):
+ - 9 unittest cases: PASS
+ - JavaScript syntax: background.js, popup.js, content.js: PASS
+ - Python compileall: PASS
+ - Tkinter UI startup, theme transitions, shutdown: PASS
+ - Real local HTTP byte-range integrity, non-range fallback, pause/persist/resume: PASS
+ - Media download using a deterministic mock of yt-dlp: PASS
+ - Mock DRM-only reject path: PASS
+ - Local bridge extension origin + required secret authentication: PASS
+ - GitHub release update version parsing + SHA256 verification: PASS
+
+Not verified in this environment:
+ - Windows EXE/Inno Setup installer build (requires a Windows runner)
+ - Real YouTube/HLS downloads (yt-dlp not installable from this runtime; external network unavailable)
+ - Browser extension on real Chrome/Edge/Firefox
+ - Actual GitHub Actions Windows build and Releases upload
+
+Known functional limitations:
+ - No DRM circumvention, decryption, or downloading protected DRM material.
+ - Not all browser downloads are capturable (blob/data/internal browser URLs and protected streams).
+ - Media format support depends on yt-dlp, site access and remote service changes.
+ - Automatic update checks & downloads; executes the installer only after user approval.

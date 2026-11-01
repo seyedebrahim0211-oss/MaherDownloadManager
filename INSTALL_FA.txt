@@ -1,0 +1,31 @@
+﻿راهنمای کوتاه نصب ماهر دانلود منیجر نسخه ۲.۰
+===========================================
+
+۱) اگر فایل MaherDownloader-Setup.exe آماده در Releases مخزن GitHub منتشر شده:
+    Releases -> Assets -> MaherDownloader-Setup.exe
+    فایل را دانلود و با دوبارکلیک نصب کنید. Python لازم نیست.
+
+۲) اگر فقط ZIP کد منبع را دارید:
+    فایل ZIP را استخراج کنید. محتویات پوشه را در ریشه مخزن GitHub آپلود کنید.
+    از وجود .github/workflows/windows-release.yml مطمئن شوید.
+    در GitHub به Actions -> Windows installer and GitHub Releases -> Run workflow بروید.
+    پس از موفق شدن ساخت، Artifacts -> MaherDownloader-Windows-Installer را دریافت کنید.
+    ZIP خروجی را استخراج و MaherDownloader-Setup.exe را اجرا کنید.
+
+۳) برای انتشار و آپدیت خودکار:
+    در Releases -> Draft a new release -> Choose a tag -> Create new tag
+    تگ v2.0.0 را بسازید و Release را منتشر کنید.
+    فرایند GitHub Actions پس از ساخت، فایل نصب را به Release اضافه می‌کند.
+    برنامه هنگام شروع وجود نسخه جدید را بررسی و فقط پس از تأیید کاربر نصب می‌کند.
+
+۴) برای افزودن Chrome:
+    chrome://extensions -> Developer mode -> Load unpacked
+    پوشه browser-extension را انتخاب کنید. برنامه را اجرا و کد اتصال را در افزونه وارد کنید.
+
+۵) رفع مشکل:
+    اگر Run workflow وجود ندارد، از آپلود پوشه .github/workflows در شاخه اصلی
+    و فعال بودن Actions مطمئن شوید.
+    اگر اجرای ساخت قرمز شد، از صفحه همان اجرا مرحله خطادار و گزارش آن را باز کنید.
+    برای راهنمای کامل و راست‌چین، INSTALL_FA.html را در Chrome/Edge باز کنید.
+
+یادآوری: بسته سورس EXE آماده ندارد؛ GitHub Actions باید آن را روی Windows بسازد.
