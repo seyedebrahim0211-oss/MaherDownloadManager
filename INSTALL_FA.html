@@ -54,10 +54,10 @@
   <div class="eyebrow">راهنمای رسمی نصب و راه‌اندازی · ویرایش اصلاح‌شده</div>
   <h1>ماهر دانلود منیجر</h1>
   <p>آموزش قدم‌به‌قدم و کاملاً فارسی برای نصب برنامه، ساخت فایل EXE در گیت‌هاب، فعال کردن افزونه مرورگر و دریافت به‌روزرسانی.</p>
-  <div class="tags"><span>ویندوز ۱۰ و ۱۱</span><span>نسخه ۲.۰</span><span>بدون نیاز به دانش برنامه‌نویسی برای نصب نسخه آماده</span></div>
+  <div class="tags"><span>ویندوز ۱۰ و ۱۱</span><span>نسخه ۲.۱</span><span>بدون نیاز به دانش برنامه‌نویسی برای نصب نسخه آماده</span></div>
 </div></header>
 <main class="wrap">
-  <div class="notice"><strong>قبل از شروع:</strong> فایل <span class="path">MaherDownloader-v2.0-GitHub-Source.zip</span> شامل «کد برنامه و ابزار ساخت» است، نه یک نصب‌کننده آماده. برای نصب ساده، ابتدا باید فایل <span class="path">MaherDownloader-Setup.exe</span> از قسمت Releases مخزن منتشر شده باشد. اگر هنوز وجود ندارد، روش دوم را انجام دهید.</div>
+  <div class="notice"><strong>قبل از شروع:</strong> فایل <span class="path">MaherDownloader-v2.1-GitHub-Ready.zip</span> شامل «کد برنامه و ابزار ساخت» است، نه یک نصب‌کننده آماده. برای نصب ساده، ابتدا باید فایل <span class="path">MaherDownloader-Setup.exe</span> از قسمت Releases مخزن منتشر شده باشد. اگر هنوز وجود ندارد، روش دوم را انجام دهید.</div>
   <nav><strong>انتخاب راهنما:</strong><div class="links"><a href="#install">۱. نصب ساده با EXE</a><a href="#github">۲. ساخت EXE با GitHub</a><a href="#browser">۳. افزونه مرورگر</a><a href="#updates">۴. به‌روزرسانی</a><a href="#trouble">۵. رفع مشکل</a></div></nav>
   <section class="section" id="install">
     <h2>روش اول: نصب ساده برنامه روی ویندوز</h2>
@@ -74,7 +74,7 @@
     <div class="step"><div class="number">۳</div><div><strong>تمام فایل‌ها را در ریشه مخزن آپلود کنید.</strong><p>در مخزن <span class="path">Add file → Upload files</span> را بزنید، تمام پوشه‌ها و فایل‌ها را اضافه کنید و <span class="path">Commit changes</span> را انتخاب کنید. مطمئن شوید پوشه <span class="path">.github/workflows/</span> نیز منتقل شده باشد.</p></div></div>
     <div class="step"><div class="number">۴</div><div><strong>ساخت خودکار را اجرا کنید.</strong><p>به <span class="path">Actions → Windows installer and GitHub Releases</span> بروید و روی <span class="path">Run workflow</span> کلیک کنید. شاخه پیش‌فرض <span class="path">main</span> یا <span class="path">master</span> را انتخاب کنید و دوباره <span class="path">Run workflow</span> بزنید.</p></div></div>
     <div class="step"><div class="number">۵</div><div><strong>فایل نصب را دریافت کنید.</strong><p>اجرای تازه را باز کنید. پس از سبز شدن وضعیت، در پایین صفحه زیر <span class="path">Artifacts</span> مورد <span class="path">MaherDownloader-Windows-Installer</span> را دانلود کنید. ZIP خروجی را استخراج کنید؛ فایل <span class="path">MaherDownloader-Setup.exe</span> داخل آن است.</p></div></div>
-    <div class="step"><div class="number">۶</div><div><strong>انتشار رسمی نسخه برای دریافت به‌روزرسانی.</strong><p>برای منتشر کردن در <span class="path">Releases</span>، تگ نسخه مانند <span class="path">v2.0.0</span> ایجاد کنید. ساده‌ترین روش در وب: <span class="path">Releases → Draft a new release → Choose a tag → Create new tag</span>؛ سپس <span class="path">Publish release</span>. گردش‌کار GitHub با تگ اجرا می‌شود و فایل نصب را به نسخه منتشرشده اضافه می‌کند.</p></div></div>
+    <div class="step"><div class="number">۶</div><div><strong>انتشار رسمی نسخه برای دریافت به‌روزرسانی.</strong><p>برای منتشر کردن در <span class="path">Releases</span>، تگ نسخه مانند <span class="path">v2.1.0</span> ایجاد کنید. ساده‌ترین روش در وب: <span class="path">Releases → Draft a new release → Choose a tag → Create new tag</span>؛ سپس <span class="path">Publish release</span>. گردش‌کار GitHub با تگ اجرا می‌شود و فایل نصب را به نسخه منتشرشده اضافه می‌کند.</p></div></div>
     <div class="good">توجه: جریان ساخت نسخه اصلاحی، فایل نصب را به Release موجود نیز اضافه می‌کند؛ بنابراین انتشار از رابط وب GitHub پشتیبانی می‌شود.</div>
   </section>
   <section class="section" id="browser">
@@ -107,6 +107,6 @@
     <p>پشتیبانی از ویدیوهای عمومیِ مجاز و HLS بدون DRM وابسته به شرایط منبع است. این برنامه محافظت DRM را دور نمی‌زند و دانلود همه محتواها یا تمام دریافت‌های داخلی مرورگر را تضمین نمی‌کند.</p>
   </section>
 </main>
-<footer>ماهر دانلود منیجر · راهنمای فارسی نسخه ۲.۰ · مناسب مطالعه در مرورگر و چاپ A4</footer>
+<footer>ماهر دانلود منیجر · راهنمای فارسی نسخه ۲.۱ · مناسب مطالعه در مرورگر و چاپ A4</footer>
 </body>
 </html>

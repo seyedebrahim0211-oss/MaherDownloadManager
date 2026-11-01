@@ -1,0 +1,122 @@
+"""UI translations independent of on-disk job categories and state."""
+from __future__ import annotations
+
+LANGUAGES = {'fa': 'فارسی', 'en': 'English'}
+TRANSLATIONS = {
+ 'brand': ('ماهر دانلود', 'MAHER'),
+ 'update_available_status': ('نسخه {version} برای دریافت آماده است', 'Version {version} is available for download'),
+ 'update_download_btn': ('دریافت نسخه جدید', 'Download update'),
+ 'app_title': ('ماهر دانلود منیجر', 'Maher Download Manager'),
+ 'new': ('افزودن دانلود', 'New download'), 'add_link': ('+ افزودن لینک', '+ Add URL'),
+ 'download_new': ('دانلود جدید', 'New download'), 'url_hint': ('پیوند فایل، ویدیو یا جریان HLS', 'File, video or HLS stream URL'),
+ 'type': ('نوع دانلود', 'Download type'), 'auto_detect': ('تشخیص خودکار', 'Auto detect'),
+ 'direct': ('لینک مستقیم', 'Direct file'), 'media': ('ویدیو / HLS', 'Video / HLS'),
+ 'filename_opt': ('نام فایل (اختیاری)', 'Filename (optional)'),
+ 'folder_auto': ('مسیر ذخیره (خالی = دسته‌بندی خودکار)', 'Save directory (blank = auto category)'),
+ 'browse': ('انتخاب پوشه', 'Browse'), 'speed_cap': ('کیلوبایت بر ثانیه (۰ = نامحدود)', 'KB/s limit (0 = unlimited)'),
+ 'start': ('شروع دانلود', 'Start download'), 'cancel': ('انصراف', 'Cancel'),
+ 'speed_invalid': ('محدودیت سرعت باید بین صفر و یک میلیون باشد.', 'Speed limit must be 0–1,000,000 KB/s.'),
+ 'add_error': ('خطا در افزودن دانلود', 'Unable to add download'),
+ 'settings': ('تنظیمات', 'Settings'), 'settings_title': ('تنظیمات دانلود', 'Download settings'),
+ 'connections': ('تعداد اتصال برای هر فایل (۱ تا ۱۶)', 'Connections per file (1–16)'),
+ 'parallel': ('حداکثر دانلود هم‌زمان (۱ تا ۶)', 'Maximum simultaneous downloads (1–6)'),
+ 'base_dir': ('پوشه پایه دانلودها', 'Default download folder'),
+ 'proxy': ('پروکسی HTTP(S) (اختیاری)', 'HTTP(S) proxy (optional)'),
+ 'theme': ('پوسته ایرانی', 'Iranian theme'), 'language': ('زبان برنامه', 'App language'),
+ 'repo': ('مخزن به‌روزرسانی GitHub (owner/repo)', 'GitHub updates repository (owner/repo)'),
+ 'auto_check': ('بررسی خودکار نسخه جدید (هر ۲۴ ساعت)', 'Automatically check for updates (every 24 hours)'),
+ 'auto_download': ('دریافت خودکار نسخه جدید پس از بررسی', 'Automatically download verified updates'),
+ 'auto_start': ('اجرای برنامه همراه با ویندوز', 'Launch on Windows startup'),
+ 'save_settings': ('ذخیره تنظیمات', 'Save settings'),
+ 'library': ('کتابخانه دانلود', 'DOWNLOAD LIBRARY'), 'all': ('همه دانلودها', 'All downloads'),
+ 'active': ('در حال دانلود', 'Downloading'), 'queued': ('در صف', 'Queued'),
+ 'done': ('تکمیل‌شده', 'Completed'), 'paused': ('متوقف‌شده', 'Paused'),
+ 'failed': ('خطادار', 'Errors'), 'video': ('ویدیو', 'Video'),
+ 'music': ('موسیقی', 'Music'), 'images': ('تصاویر', 'Images'),
+ 'documents': ('اسناد', 'Documents'), 'archives': ('فشرده', 'Archives'), 'other': ('سایر', 'Other'),
+ 'dashboard': ('مدیریت دانلودها', 'Download dashboard'),
+ 'tagline': ('سریع، منظم و مطمئن', 'Fast, organized, and reliable'),
+ 'theme_button': ('◈ پوسته', '◈ Themes'), 'settings_button': ('⚙ تنظیمات', '⚙ Settings'),
+ 'files_total': ('کل فایل‌ها', 'Total files'), 'running': ('فعال', 'Active'),
+ 'total_speed': ('سرعت کل', 'Total speed'), 'files_unit': ('فایل', 'files'),
+ 'downloads_unit': ('دانلود', 'downloads'), 'per_second': ('در ثانیه', 'per second'),
+ 'search': ('جستجو', 'Search'), 'search_hint': ('جستجوی نام یا لینک…', 'Search filename or URL…'),
+ 'resume': ('▶ ادامه', '▶ Resume'), 'pause': ('Ⅱ توقف', 'Ⅱ Pause'),
+ 'remove': ('▢ حذف', '▢ Remove'),
+ 'browser_on': ('رابط مرورگر: فعال', 'Browser connector: active'),
+ 'browser_off': ('رابط مرورگر: درگاه اشغال است', 'Browser connector: unavailable'),
+ 'copy_pair': ('کپی کد اتصال مرورگر', 'Copy browser pairing code'),
+ 'update_check': ('بررسی به‌روزرسانی', 'Check updates'),
+ 'update_ready_btn': ('نصب نسخه جدید', 'Install update'),
+ 'update_ready': ('نسخه {version} آماده نصب است', 'Version {version} ready to install'),
+ 'update_downloading': ('در حال دریافت به‌روزرسانی…', 'Downloading update…'),
+ 'update_checking': ('بررسی نسخه جدید…', 'Checking for updates…'),
+ 'update_latest': ('آخرین نسخه نصب است', 'You are up to date'),
+ 'pause_all': ('توقف همه', 'Pause all'), 'resume_all': ('ادامه همه', 'Resume all'),
+ 'select_hint': ('برای جزئیات، یک دانلود را انتخاب کنید.', 'Select a download to see details.'),
+ 'open_folder': ('پوشه فایل', 'Open folder'), 'open_file': ('باز کردن', 'Open file'),
+ 'state': ('وضعیت', 'Status'), 'speed': ('سرعت', 'Speed'),
+ 'size': ('حجم', 'Size'), 'progress': ('پیشرفت', 'Progress'),
+ 'name': ('نام فایل', 'Filename'), 'items': ('{count} مورد', '{count} items'),
+ 'status_running': ('در حال دانلود', 'Downloading'), 'status_queued': ('در صف', 'Queued'),
+ 'status_done': ('تکمیل‌شده', 'Completed'), 'status_paused': ('متوقف', 'Paused'),
+ 'status_error': ('خطا', 'Error'), 'status_scheduled': ('زمان‌بندی‌شده', 'Scheduled'),
+ 'menu_resume': ('ادامه دانلود', 'Resume download'), 'menu_pause': ('توقف دانلود', 'Pause download'),
+ 'menu_folder': ('باز کردن پوشه', 'Open folder'), 'menu_remove': ('حذف از فهرست', 'Remove from list'),
+ 'pair_title': ('اتصال مرورگر', 'Browser pairing'),
+ 'pair_copied': ('کد محرمانه کپی شد. آن را در افزونه مرورگر وارد کنید.', 'Pairing code copied. Paste it into the browser extension.'),
+ 'update_title': ('به‌روزرسانی', 'Updates'),
+ 'update_repo_missing': ('ابتدا در تنظیمات، مخزن GitHub را وارد کنید.', 'Configure the GitHub repository in Settings first.'),
+ 'update_available': ('نسخه {version} منتشر شده است. اکنون دریافت شود؟', 'Version {version} is available. Download it now?'),
+ 'update_verified': ('فایل به‌روزرسانی دریافت و بررسی شد. همین حالا نصب و برنامه بسته شود؟', 'Update downloaded and verified. Close the app and install now?'),
+ 'update_failed': ('به‌روزرسانی ناموفق بود', 'Update failed'),
+ 'update_auto_notice': ('به‌روزرسانی تأییدشده آماده است. دکمه نصب نسخه جدید را بزنید.', 'A verified update is ready. Click Install update.'),
+ 'active_download': ('دانلود فعال', 'Active download'),
+ 'pause_to_delete': ('ابتدا دانلود را متوقف کنید تا امکان حذف فراهم شود.', 'Pause the download before removing it.'),
+ 'remove_title': ('حذف دانلود', 'Remove download'),
+ 'remove_confirm': ('«{name}» از فهرست حذف شود؟\nفایل تکمیل‌شده حذف نخواهد شد.', 'Remove “{name}” from the list?\nCompleted files will not be deleted.'),
+ 'error': ('خطا', 'Error'), 'missing_folder': ('پوشه یافت نشد', 'Folder not found'),
+ 'open_error': ('خطا در باز کردن فایل', 'Unable to open file'),
+ 'status_detail': ('{name} • {done} از {total}', '{name} • {done} of {total}'),
+ 'version': ('نسخه {version} • فارسی', 'Version {version} • English'),
+ 'updating_not_windows': ('نصب خودکار فقط در ویندوز امکان‌پذیر است.', 'Automatic installer launch is supported on Windows only.'),
+ 'update_install_error': ('نصب‌کننده اجرا نشد', 'Could not launch installer'),
+ 'confirm_close_update': ('نسخه جدید آماده است. قبل از خروج نصب شود؟', 'An update is ready. Install it before exiting?'),
+}
+
+FILTER_KEYS = ['all','active','queued','done','paused','failed','video','music','images','documents','archives','other']
+CATEGORY_KEYS = {'ویدیو':'video','موسیقی':'music','تصاویر':'images','اسناد':'documents','فشرده':'archives','سایر':'other'}
+STATUS_KEYS = {'running':'status_running','queued':'status_queued','done':'status_done','paused':'status_paused','error':'status_error','scheduled':'status_scheduled'}
+
+
+def tr(key: str, lang: str = 'fa', **kwargs) -> str:
+    if key not in TRANSLATIONS:
+        raise KeyError('Missing translation: '+key)
+    value = TRANSLATIONS[key][1 if lang == 'en' else 0]
+    return value.format(**kwargs)
+
+_ERROR_EN = {
+    'فقط پیوندهای مستقیم HTTP، HTTPS و FTP پذیرفته می‌شوند.': 'Only HTTP, HTTPS and FTP URLs are supported.',
+    'پیوند شامل نام کاربری یا گذرواژه پذیرفته نمی‌شود.': 'URLs containing usernames or passwords are not supported.',
+    'نوع دانلود نامعتبر است.': 'Unsupported download type.',
+    'این پیوند قبلاً به فهرست دانلود اضافه شده است.': 'This URL is already in the download list.',
+    'پروکسی دارای رمز عبور ذخیره نمی‌شود.': 'Proxy credentials cannot be stored.',
+    'نشانی پروکسی نامعتبر است.': 'Invalid proxy URL.',
+    'پوسته نامعتبر است.': 'Invalid theme.',
+    'نشانی مخزن GitHub معتبر نیست.': 'Invalid GitHub repository.',
+    'نشانی مخزن باید مانند owner/repo باشد.': 'Repository must be owner/repo.',
+    'نسخه جدید فایل نصب یا هش SHA-256 معتبر ندارد.': 'Release is missing the installer or SHA-256 checksum.',
+    'فقط دریافت امن HTTPS برای نصب‌کننده مجاز است.': 'Installer downloads must use HTTPS.',
+    'هش فایل به‌روزرسانی نامعتبر است.': 'Invalid update checksum.',
+    'حجم نصب‌کننده بیش از حد مجاز است.': 'Installer exceeds the maximum allowed size.',
+    'یکپارچگی SHA-256 بسته نصب تأیید نشد.': 'Installer SHA-256 verification failed.',
+    'مسیر نصب‌کننده نامعتبر است.': 'Invalid installer path.',
+    'اطلاعات ویدیو دریافت نشد.': 'Could not retrieve video information.',
+    'موتور رسانه yt-dlp نصب نشده است. requirements.txt را نصب کنید.': 'yt-dlp is missing. Install requirements.txt.',
+    'ابتدا دانلود را متوقف کنید و منتظر خروج آن از حالت فعال بمانید.': 'Pause the download and wait for it to stop before removal.',
+}
+
+
+def localize_error(exc: Exception, lang: str) -> str:
+    msg = str(exc)
+    return _ERROR_EN.get(msg,msg) if lang == 'en' else msg

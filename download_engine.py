@@ -110,6 +110,10 @@ class DownloadManager:
         self.proxy = ''
         self.theme = 'فیروزه‌ای'
         self.update_repo = ''
+        self.language = 'fa'
+        self.auto_check_updates = True
+        self.auto_download_updates = True
+        self.last_update_check = ''
         self.pairing_token = secrets.token_hex(24)
         self.callback = callback or (lambda:None)
         self.jobs: list[DownloadJob] = []
@@ -120,7 +124,7 @@ class DownloadManager:
         self.scheduler=Thread(target=self._schedule_loop, daemon=True, name='maher-scheduler')
         self.scheduler.start()
 
-    def configure(self, *, connections=None, parallel=None, default_dir=None, proxy=None, theme=None, update_repo=None):
+    def configure(self, *, connections=None, parallel=None, default_dir=None, proxy=None, theme=None, update_repo=None, language=None, auto_check_updates=None, auto_download_updates=None, last_update_check=None):
         with self.lock:
             if connections is not None: self.connections=max(1,min(16,int(connections)))
             if parallel is not None:self.parallel=max(1,min(6,int(parallel)))
@@ -137,6 +141,12 @@ class DownloadManager:
                 from updater import REPO_RE
                 if update_repo and not REPO_RE.fullmatch(update_repo):raise ValueError('نشانی مخزن GitHub معتبر نیست.')
                 self.update_repo=update_repo
+            if language is not None:
+                if language not in {'fa','en'}:raise ValueError('Unsupported language.')
+                self.language=language
+            if auto_check_updates is not None:self.auto_check_updates=bool(auto_check_updates)
+            if auto_download_updates is not None:self.auto_download_updates=bool(auto_download_updates)
+            if last_update_check is not None:self.last_update_check=str(last_update_check)
             self.save()
         self._notify()
 
@@ -151,6 +161,10 @@ class DownloadManager:
             self.proxy=settings.get('proxy','')
             self.theme=settings.get('theme','فیروزه‌ای')
             self.update_repo=settings.get('update_repo','')
+            self.language=settings.get('language','fa') if settings.get('language','fa') in {'fa','en'} else 'fa'
+            self.auto_check_updates=bool(settings.get('auto_check_updates',True))
+            self.auto_download_updates=bool(settings.get('auto_download_updates',True))
+            self.last_update_check=settings.get('last_update_check','')
             self.pairing_token=settings.get('pairing_token') or self.pairing_token
             allowed=set(DownloadJob.__dataclass_fields__)-{'_stop','_worker','_last_bytes','_last_tick','speed'}
             for raw in data.get('jobs',[]):
@@ -167,7 +181,9 @@ class DownloadManager:
         with self.lock:
             payload={'version':1,'settings':{'connections':self.connections,'parallel':self.parallel,
                 'default_dir':str(self.default_dir),'proxy':self.proxy,'theme':self.theme,
-                'update_repo':self.update_repo,'pairing_token':self.pairing_token},'jobs':[j.snapshot() for j in self.jobs]}
+                'update_repo':self.update_repo,'pairing_token':self.pairing_token,
+                'language':self.language,'auto_check_updates':self.auto_check_updates,
+                'auto_download_updates':self.auto_download_updates,'last_update_check':self.last_update_check},'jobs':[j.snapshot() for j in self.jobs]}
             tmp=self.db_path.with_suffix('.json.tmp')
             tmp.write_text(json.dumps(payload,ensure_ascii=False,indent=2), encoding='utf-8')
             os.replace(tmp,self.db_path)

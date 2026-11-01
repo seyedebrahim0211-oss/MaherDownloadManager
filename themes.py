@@ -17,3 +17,11 @@ THEMES = {
         'text':'#243B3B','muted':'#586A68','accent':'#3E998D','accentHover':'#2D786F',
         'blue':'#3B75A0','warn':'#8F621D','red':'#B74548','green':'#247D55'},
 }
+
+# Stable persisted keys, translated display names.
+THEME_LABELS = {
+    'فیروزه‌ای': {'fa':'فیروزه‌ای','en':'Turquoise Night'},
+    'لاجورد و طلا': {'fa':'لاجورد و طلا','en':'Lapis & Gold'},
+    'ترمه زرشکی': {'fa':'ترمه زرشکی','en':'Ruby Termeh'},
+    'نگار ایرانی': {'fa':'نگار ایرانی','en':'Persian Manuscript'},
+}

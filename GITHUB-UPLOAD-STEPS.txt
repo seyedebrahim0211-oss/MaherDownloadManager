@@ -1,0 +1,15 @@
+Maher Download Manager v2.1.0 — GitHub Upload
+
+Repo: https://github.com/seyedebrahim0211-oss/MaherDownloadManager
+
+1. Use GitHub Desktop to Clone the repository.
+2. Extract the ZIP and copy its CONTENTS into the cloned repository.
+   Replace files with the same names. Include hidden .github/workflows/main.yml.
+3. Commit all changes on branch main and Push Origin.
+4. Open GitHub -> Actions -> Windows Installer - Build and Release.
+5. On a successful run, download MaherDownloader-Windows-Installer from Artifacts.
+6. Publish tag v2.1.0 in Releases to publish the EXE and SHA-256 asset.
+7. On installed machines, updates check once every 24h and download verified releases.
+   Installation asks user approval.
+
+NOTE: Upload the entire source; uploading only README or installer config will not update application behavior.
